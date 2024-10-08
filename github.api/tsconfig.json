@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2016",
     "useDefineForClassFields": true,
-    "module": "ESNext",
+    "module": "ES2015",
+    "rootDir": "./src",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
 
@@ -13,11 +14,16 @@
     "moduleDetection": "force",
     "noEmit": true,
 
+    /* Emit */
+    "sourceMap": true,
+    "outDir": "./dist",
+    "removeComments": true,
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "dist/index.js"]
 }
