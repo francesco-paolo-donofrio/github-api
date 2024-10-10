@@ -1,16 +1,8 @@
 "use strict";
-function isEvenOrOdd(number) {
-    if (number % 2 === 0) {
-        return "Even";
-    }
-    else {
-        return "Odd";
-    }
-}
-;
-console.log(isEvenOrOdd(2));
-console.log(isEvenOrOdd(3));
-isEvenOrOdd(329);
-isEvenOrOdd(100);
-isEvenOrOdd(921912);
+var _a;
+(_a = document.getElementById('searchBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+    const searchBar = document.getElementById('search');
+    const search = searchBar.value;
+    console.log(search);
+});
 //# sourceMappingURL=main.js.map
