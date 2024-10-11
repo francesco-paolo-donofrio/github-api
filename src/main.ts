@@ -1,16 +1,33 @@
 // API call
-import axios from "axios";
+import axios from 'axios';
 
+let repositories: any[] = [];
 
-axios.get('https://api.github.com/users/').then((response) => {
-    console.log(response.data);
-})
+// Fetch all public repositories
+axios.get('https://api.github.com/repositories')
+    .then((response) => {
+        repositories = response.data;
+        console.log("Fetched repositories:", repositories);
+    })
+    .catch((error) => {
+        console.error("Error fetching repositories:", error);
+    });
 
-document.getElementById('searchBtn')?.addEventListener('click', () =>{
+// Filter repositories based on search input
+document.getElementById('searchBtn')?.addEventListener('click', () => {
     const searchBar = document.getElementById('search') as HTMLInputElement;
-    const search = searchBar.value;
-    console.log(search);
-})
+    const search = searchBar.value.toLowerCase();
+
+    if (search) {
+        // Filter the repositories by name
+        const filteredRepos = repositories.filter(repo => 
+            repo.name.toLowerCase().includes(search)
+        );
+        console.log("Filtered repositories:", filteredRepos);
+    } else {
+        console.log("Please enter a search term.");
+    }
+});
 
 
 
