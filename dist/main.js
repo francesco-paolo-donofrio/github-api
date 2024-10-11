@@ -1,12 +1,6 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var _a;
-Object.defineProperty(exports, "__esModule", { value: true });
-const axios_1 = __importDefault(require("axios"));
 let repositories = [];
-axios_1.default.get('https://api.github.com/repositories')
+axios.get('https://api.github.com/repositories')
     .then((response) => {
     repositories = response.data;
     console.log("Fetched repositories:", repositories);
