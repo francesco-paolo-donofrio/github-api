@@ -21,49 +21,62 @@ interface User {
 
 type SearchResult = Repository[] | User[];
 
-let searchResults: SearchResult = [];
-let isLoading = false;
-let hasError = false;
-let searchType: 'repositories' | 'users' = 'repositories';
+document.addEventListener('DOMContentLoaded', () => {
+    const searchBar = document.getElementById('search') as HTMLInputElement;
+    const searchBtn = document.getElementById('searchBtn') as HTMLButtonElement;
+    const searchTypeToggle = document.getElementById('searchType') as HTMLSelectElement;
+    const appDiv = document.getElementById('app') as HTMLDivElement;
 
-const searchBar = document.getElementById('search') as HTMLInputElement;
-const searchBtn = document.getElementById('searchBtn') as HTMLButtonElement;
-const searchTypeToggle = document.getElementById('searchType') as HTMLSelectElement;
-const appDiv = document.getElementById('app') as HTMLDivElement;
-
-async function fetchData(query: string) {
-    isLoading = true;
-    updateUI();
-
-    try {
-        const response = await axios.get(`https://api.github.com/search/${searchType}?q=${query}&per_page=10`);
-        searchResults = response.data.items;
-        hasError = false;
-    } catch (error) {
-        console.error(`Error fetching ${searchType}:`, error);
-        hasError = true;
-        searchResults = [];
+    if (!appDiv) {
+        console.error("Element with id 'app' not found!");
+        return;
     }
 
-    isLoading = false;
-    updateUI();
-}
+    let searchResults: SearchResult = [];
+    let isLoading = false;
+    let hasError = false;
+    let searchType: 'repositories' | 'users' = 'repositories';
 
-function updateUI() {
-    if (isLoading) {
-        appDiv.innerHTML = "<p>Loading...</p>";
-    } else if (hasError) {
-        appDiv.innerHTML = `<p>An error occurred while fetching ${searchType}.</p>`;
-    } else if (searchResults.length > 0) {
-        appDiv.innerHTML = searchResults.map(item => 
-            searchType === 'repositories' 
-                ? createRepoCard(item as Repository) 
-                : createUserCard(item as User)
-        ).join('');
-    } else {
-        appDiv.innerHTML = `<p>No ${searchType} found.</p>`;
+    async function fetchData(query: string) {
+        console.log(`Fetching ${searchType} with query: ${query}`);
+        isLoading = true;
+        updateUI();
+
+        try {
+            const response = await axios.get(`https://api.github.com/search/${searchType}?q=${query}&per_page=10`);
+            console.log('API response:', response.data);
+            searchResults = response.data.items;
+            hasError = false;
+        } catch (error) {
+            console.error(`Error fetching ${searchType}:`, error);
+            hasError = true;
+            searchResults = [];
+        }
+
+        isLoading = false;
+        updateUI();
     }
-}
+
+    function updateUI() {
+        console.log('Updating UI. Search results:', searchResults);
+        let htmlContent = '';
+        if (isLoading) {
+            htmlContent = "<p>Loading...</p>";
+        } else if (hasError) {
+            htmlContent = `<p>An error occurred while fetching ${searchType}.</p>`;
+        } else if (searchResults.length > 0) {
+            htmlContent = searchResults.map(item => 
+                searchType === 'repositories' 
+                    ? createRepoCard(item as Repository) 
+                    : createUserCard(item as User)
+            ).join('');
+        } else {
+            htmlContent = `<p>No ${searchType} found.</p>`;
+        }
+        console.log('Generated HTML:', htmlContent);
+        appDiv.innerHTML = htmlContent;
+        console.log('appDiv after update:', appDiv.outerHTML);
+    }
 
 function createRepoCard(repo: Repository): string {
     return `
@@ -94,6 +107,7 @@ function createUserCard(user: User): string {
 
 searchBtn.addEventListener('click', () => {
     const search: string = searchBar.value.trim().toLowerCase();
+    console.log('Search button clicked. Search term:', search);
     if (search) {
         fetchData(search);
     } else {
@@ -103,9 +117,12 @@ searchBtn.addEventListener('click', () => {
 
 searchTypeToggle.addEventListener('change', (event) => {
     searchType = (event.target as HTMLSelectElement).value as 'repositories' | 'users';
+    console.log('Search type changed to:', searchType);
 });
 
+// Initial UI update
 updateUI();
+});
 
 
 
