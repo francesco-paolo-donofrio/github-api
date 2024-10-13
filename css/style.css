@@ -26,7 +26,8 @@ body {
 }
 
 #repo-name {
-    color: white;
+    color: yellow;
+    font-size: 20px;
     text-align: center;
     padding: 20px;
     width: 100px;

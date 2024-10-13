@@ -1,4 +1,5 @@
 var _a;
+import axios from 'axios';
 let repositories = [];
 axios.get('https://api.github.com/repositories')
     .then((response) => {
@@ -15,7 +16,10 @@ axios.get('https://api.github.com/repositories')
     if (search) {
         const filteredRepos = repositories.filter(repo => repo.name.toLowerCase().includes(search));
         console.log("Filtered repositories:", filteredRepos);
-        repoNameDiv.innerHTML = filteredRepos.map(repo => repo.name).join(', ');
+        const repoList = filteredRepos.map(repo => `<li>${repo.name}</li>`).join('');
+        if (repoNameDiv) {
+            repoNameDiv.innerHTML = `<ul>${repoList}</ul>`;
+        }
     }
     else {
         console.log("Please enter a search term.");
