@@ -25,31 +25,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const appDiv = document.getElementById('app') as HTMLDivElement;
 
     async function fetchData(query: string) {
-        const searchType = searchTypeToggle.value; // Usa il valore selezionato dal dropdown
+        const searchType = searchTypeToggle.value;
         console.log(`Fetching ${searchType} with query: ${query}`);
 
+        // Mostra il loader
+        appDiv.innerHTML = '<p>Loading...</p>';
+
         try {
-            const response = await axios.get(`https://api.github.com/search/${searchType}?q=${query}&per_page=10`);
+            const response = await axios.get(`https://api.github.com/search/${searchType}?q=${query}&per_page=20`);
             const searchResults = response.data.items || [];
 
             // Chiaro il contenuto attuale delle card
             appDiv.innerHTML = '';
 
-            // Crea e mostra le card per ogni risultato
-            searchResults.forEach((item: Repository | User) => {
-                let card : HTMLElement = document.createElement('div');
+            if (searchResults.length === 0) {
+                appDiv.innerHTML = '<p>No results found.</p>';
+                return;
+            }
 
-                // Se stai cercando repository
+            searchResults.forEach((item: Repository | User) => {
+                let card: HTMLElement = document.getElementById('repoCardTemplate')!.cloneNode(true) as HTMLElement;
+
                 if (searchType === 'repositories') {
-                    card = document.getElementById('repoCardTemplate')!.cloneNode(true) as HTMLElement;
                     card.querySelector('.repo-name')!.textContent = (item as Repository).name;
                     card.querySelector('.repo-description')!.textContent = (item as Repository).description || 'No description available.';
                     card.querySelector('.repo-stars')!.textContent = `Stars: ${(item as Repository).stargazers_count}`;
                     const link = card.querySelector('.repo-link') as HTMLAnchorElement;
                     link.href = (item as Repository).html_url;
-
-                } else if (searchType === 'users') { // Se stai cercando utenti
-                    card = document.getElementById('repoCardTemplate')!.cloneNode(true) as HTMLElement;
+                } else if (searchType === 'users') {
                     card.querySelector('.repo-name')!.textContent = (item as User).login;
                     card.querySelector('.repo-description')!.textContent = 'User/Organization';
                     card.querySelector('.repo-stars')!.textContent = '';
@@ -57,23 +60,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     link.href = (item as User).html_url;
                 }
 
-                // Mostra la card
-                card.classList.remove('d-block'); 
+                card.classList.remove('d-none'); 
                 appDiv.appendChild(card);
             });
 
         } catch (error) {
             console.error(`Error fetching ${searchType}:`, error);
+            appDiv.innerHTML = '<p>An error occurred. Please try again.</p>';
         }
     }
 
     searchBtn.addEventListener('click', () => {
         const search = searchBar.value.trim().toLowerCase();
         console.log('Search button clicked. Search term:', search);
-        if (search) {
+        
+        if (search.length >= 3) {
             fetchData(search);
         } else {
-            appDiv.innerHTML = "<p>Please enter a search term.</p>";
+            appDiv.innerHTML = "<p>Please enter at least 3 characters.</p>";
         }
     });
 });

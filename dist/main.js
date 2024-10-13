@@ -50,18 +50,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     case 0:
                         searchType = searchTypeToggle.value;
                         console.log("Fetching ".concat(searchType, " with query: ").concat(query));
+                        appDiv.innerHTML = '<p>Loading...</p>';
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4, axios.get("https://api.github.com/search/".concat(searchType, "?q=").concat(query, "&per_page=10"))];
+                        return [4, axios.get("https://api.github.com/search/".concat(searchType, "?q=").concat(query, "&per_page=20"))];
                     case 2:
                         response = _a.sent();
                         searchResults = response.data.items || [];
                         appDiv.innerHTML = '';
+                        if (searchResults.length === 0) {
+                            appDiv.innerHTML = '<p>No results found.</p>';
+                            return [2];
+                        }
                         searchResults.forEach(function (item) {
-                            var card = document.createElement('div');
+                            var card = document.getElementById('repoCardTemplate').cloneNode(true);
                             if (searchType === 'repositories') {
-                                card = document.getElementById('repoCardTemplate').cloneNode(true);
                                 card.querySelector('.repo-name').textContent = item.name;
                                 card.querySelector('.repo-description').textContent = item.description || 'No description available.';
                                 card.querySelector('.repo-stars').textContent = "Stars: ".concat(item.stargazers_count);
@@ -69,20 +73,20 @@ document.addEventListener('DOMContentLoaded', function () {
                                 link.href = item.html_url;
                             }
                             else if (searchType === 'users') {
-                                card = document.getElementById('repoCardTemplate').cloneNode(true);
                                 card.querySelector('.repo-name').textContent = item.login;
                                 card.querySelector('.repo-description').textContent = 'User/Organization';
                                 card.querySelector('.repo-stars').textContent = '';
                                 var link = card.querySelector('.repo-link');
                                 link.href = item.html_url;
                             }
-                            card.classList.remove('d-block');
+                            card.classList.remove('d-none');
                             appDiv.appendChild(card);
                         });
                         return [3, 4];
                     case 3:
                         error_1 = _a.sent();
                         console.error("Error fetching ".concat(searchType, ":"), error_1);
+                        appDiv.innerHTML = '<p>An error occurred. Please try again.</p>';
                         return [3, 4];
                     case 4: return [2];
                 }
@@ -92,11 +96,11 @@ document.addEventListener('DOMContentLoaded', function () {
     searchBtn.addEventListener('click', function () {
         var search = searchBar.value.trim().toLowerCase();
         console.log('Search button clicked. Search term:', search);
-        if (search) {
+        if (search.length >= 3) {
             fetchData(search);
         }
         else {
-            appDiv.innerHTML = "<p>Please enter a search term.</p>";
+            appDiv.innerHTML = "<p>Please enter at least 3 characters.</p>";
         }
     });
 });
