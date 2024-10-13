@@ -1,24 +1,26 @@
 var _a;
 import axios from 'axios';
-let repositories = [];
+var repositories = [];
 axios.get('https://api.github.com/repositories')
-    .then((response) => {
+    .then(function (response) {
     repositories = response.data;
     console.log("Fetched repositories:", repositories);
 })
-    .catch((error) => {
+    .catch(function (error) {
     console.error("Error fetching repositories:", error);
 });
-(_a = document.getElementById('searchBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
-    const searchBar = document.getElementById('search');
-    const search = searchBar.value.toLowerCase();
-    const repoNameDiv = document.getElementById('repo-name');
+(_a = document.getElementById('searchBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
+    var searchBar = document.getElementById('search');
+    var search = searchBar.value.toLowerCase();
+    var repoNameDiv = document.getElementById('repo-name');
     if (search) {
-        const filteredRepos = repositories.filter(repo => repo.name.toLowerCase().includes(search));
+        var filteredRepos = repositories.filter(function (repo) {
+            return repo.name.toLowerCase().includes(search);
+        });
         console.log("Filtered repositories:", filteredRepos);
-        const repoList = filteredRepos.map(repo => `<li>${repo.name}</li>`).join('');
+        var repoList = filteredRepos.map(function (repo) { return "".concat(repo.name); }).join('');
         if (repoNameDiv) {
-            repoNameDiv.innerHTML = `<ul>${repoList}</ul>`;
+            repoNameDiv.innerHTML = "".concat(repoList);
         }
     }
     else {
