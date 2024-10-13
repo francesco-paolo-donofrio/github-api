@@ -78,32 +78,32 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('appDiv after update:', appDiv.outerHTML);
     }
 
-function createRepoCard(repo: Repository): string {
-    return `
-        <div class="wrapper">
-            <div class="banner-image"></div>
-            <h1>${repo.name}</h1>
-            <p>${repo.description || 'No description available.'}</p>
-            <p>Stars: ${repo.stargazers_count}</p>
-            <div class="button-wrapper">
-                <a href="${repo.html_url}" target="_blank" class="btn outline">VIEW ON GITHUB</a>
+    function createRepoCard(repo: Repository): string {
+        return `
+            <div class="wrapper">
+                <div class="banner-image"></div>
+                <h1>${repo.name}</h1>
+                <p>${repo.description || 'No description available.'}</p>
+                <p>Stars: ${repo.stargazers_count}</p>
+                <div class="button-wrapper">
+                    <a href="${repo.html_url}" target="_blank" class="btn outline">VIEW ON GITHUB</a>
+                </div>
             </div>
-        </div>
-    `;
-}
-
-function createUserCard(user: User): string {
-    return `
-        <div class="wrapper">
-            <img src="${user.avatar_url}" alt="${user.login}" class="avatar-image">
-            <h1>${user.login}</h1>
-            <p>Type: ${user.type}</p>
-            <div class="button-wrapper">
-                <a href="${user.html_url}" target="_blank" class="btn outline">VIEW ON GITHUB</a>
+        `;
+    }
+    
+    function createUserCard(user: User): string {
+        return `
+            <div class="wrapper">
+                <img src="${user.avatar_url}" alt="${user.login}" class="avatar-image">
+                <h1>${user.login}</h1>
+                <p>Type: ${user.type}</p>
+                <div class="button-wrapper">
+                    <a href="${user.html_url}" target="_blank" class="btn outline">VIEW ON GITHUB</a>
+                </div>
             </div>
-        </div>
-    `;
-}
+        `;
+    }
 
 searchBtn.addEventListener('click', () => {
     const search: string = searchBar.value.trim().toLowerCase();

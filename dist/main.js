@@ -108,10 +108,10 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('appDiv after update:', appDiv.outerHTML);
     }
     function createRepoCard(repo) {
-        return "\n        <div class=\"wrapper\">\n            <div class=\"banner-image\"></div>\n            <h1>".concat(repo.name, "</h1>\n            <p>").concat(repo.description || 'No description available.', "</p>\n            <p>Stars: ").concat(repo.stargazers_count, "</p>\n            <div class=\"button-wrapper\">\n                <a href=\"").concat(repo.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n            </div>\n        </div>\n    ");
+        return "\n            <div class=\"wrapper\">\n                <div class=\"banner-image\"></div>\n                <h1>".concat(repo.name, "</h1>\n                <p>").concat(repo.description || 'No description available.', "</p>\n                <p>Stars: ").concat(repo.stargazers_count, "</p>\n                <div class=\"button-wrapper\">\n                    <a href=\"").concat(repo.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n                </div>\n            </div>\n        ");
     }
     function createUserCard(user) {
-        return "\n        <div class=\"wrapper\">\n            <img src=\"".concat(user.avatar_url, "\" alt=\"").concat(user.login, "\" class=\"avatar-image\">\n            <h1>").concat(user.login, "</h1>\n            <p>Type: ").concat(user.type, "</p>\n            <div class=\"button-wrapper\">\n                <a href=\"").concat(user.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n            </div>\n        </div>\n    ");
+        return "\n            <div class=\"wrapper\">\n                <img src=\"".concat(user.avatar_url, "\" alt=\"").concat(user.login, "\" class=\"avatar-image\">\n                <h1>").concat(user.login, "</h1>\n                <p>Type: ").concat(user.type, "</p>\n                <div class=\"button-wrapper\">\n                    <a href=\"").concat(user.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n                </div>\n            </div>\n        ");
     }
     searchBtn.addEventListener('click', function () {
         var search = searchBar.value.trim().toLowerCase();
