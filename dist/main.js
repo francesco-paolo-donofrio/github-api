@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -35,72 +34,80 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 document.addEventListener('DOMContentLoaded', function () {
     var searchBar = document.getElementById('search');
     var searchBtn = document.getElementById('searchBtn');
-    var searchTypeDropdown = document.getElementById('searchType');
+    var searchTypeToggle = document.getElementById('searchType');
     var appDiv = document.getElementById('app');
-    var cardTemplate = "\n        <div class=\"wrapper\">\n            <h1 class=\"card-title\"></h1>\n            <p class=\"card-description\"></p>\n            <a href=\"#\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n        </div>\n    ";
+    var searchResults = [];
+    var searchType = 'repositories';
+    function fetchData(query) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log("Fetching ".concat(searchType, " with query: ").concat(query));
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4, axios.get("https://api.github.com/search/".concat(searchType, "?q=").concat(query, "&per_page=10"))];
+                    case 2:
+                        response = _a.sent();
+                        console.log('API response:', response.data);
+                        searchResults = response.data.items || [];
+                        console.log('Search results:', searchResults);
+                        return [3, 4];
+                    case 3:
+                        error_1 = _a.sent();
+                        console.error("Error fetching ".concat(searchType, ":"), error_1);
+                        searchResults = [];
+                        return [3, 4];
+                    case 4:
+                        updateUI();
+                        return [2];
+                }
+            });
+        });
+    }
+    function updateUI() {
+        console.log('Updating UI. Search results:', searchResults);
+        var htmlContent = '';
+        if (searchResults.length > 0) {
+            htmlContent = searchResults.map(function (item) {
+                return searchType === 'repositories'
+                    ? createRepoCard(item)
+                    : createUserCard(item);
+            }).join('');
+        }
+        else {
+            htmlContent = "<p>No ".concat(searchType, " found.</p>");
+        }
+        appDiv.innerHTML = htmlContent;
+        console.log('Updated appDiv:', appDiv.innerHTML);
+    }
+    function createRepoCard(repo) {
+        return "\n            <div class=\"wrapper\">\n                <h1>".concat(repo.name, "</h1>\n                <p>").concat(repo.description || 'No description available.', "</p>\n                <p>Stars: ").concat(repo.stargazers_count, "</p>\n                <div class=\"button-wrapper\">\n                    <a href=\"").concat(repo.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n                </div>\n            </div>\n        ");
+    }
+    function createUserCard(user) {
+        return "\n            <div class=\"wrapper\">\n                <img src=\"".concat(user.avatar_url, "\" alt=\"").concat(user.login, "\" class=\"avatar-image\">\n                <h1>").concat(user.login, "</h1>\n                <p>Type: ").concat(user.type, "</p>\n                <div class=\"button-wrapper\">\n                    <a href=\"").concat(user.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n                </div>\n            </div>\n        ");
+    }
     searchBtn.addEventListener('click', function () {
-        var searchQuery = searchBar.value.trim();
-        var searchType = searchTypeDropdown.value;
-        if (searchQuery) {
-            fetchData(searchQuery, searchType);
+        var search = searchBar.value.trim().toLowerCase();
+        console.log('Search button clicked. Search term:', search);
+        if (search) {
+            fetchData(search);
         }
         else {
             appDiv.innerHTML = "<p>Please enter a search term.</p>";
         }
     });
-    function fetchData(query, type) {
-        return __awaiter(this, void 0, void 0, function () {
-            var apiUrl, response, data, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 3, , 4]);
-                        appDiv.innerHTML = "<p>Loading...</p>";
-                        apiUrl = type === 'repositories'
-                            ? "https://api.github.com/search/repositories?q=".concat(query, "&per_page=10")
-                            : "https://api.github.com/search/users?q=".concat(query, "&per_page=10");
-                        return [4, fetch(apiUrl)];
-                    case 1:
-                        response = _a.sent();
-                        return [4, response.json()];
-                    case 2:
-                        data = _a.sent();
-                        renderResults(data.items, type);
-                        return [3, 4];
-                    case 3:
-                        error_1 = _a.sent();
-                        console.error('Error fetching data:', error_1);
-                        appDiv.innerHTML = "<p>Error fetching data. Please try again.</p>";
-                        return [3, 4];
-                    case 4: return [2];
-                }
-            });
-        });
-    }
-    function renderResults(results, type) {
-        if (results.length === 0) {
-            appDiv.innerHTML = "<p>No ".concat(type, " found.</p>");
-            return;
-        }
-        appDiv.innerHTML = '';
-        results.forEach(function (result) {
-            var card = document.createElement('div');
-            card.innerHTML = cardTemplate;
-            if (type === 'repositories') {
-                card.querySelector('.card-title').textContent = result.name;
-                card.querySelector('.card-description').textContent = result.description || 'No description available.';
-                card.querySelector('a').setAttribute('href', result.html_url);
-            }
-            else {
-                card.querySelector('.card-title').textContent = result.login;
-                card.querySelector('.card-description').textContent = "Type: ".concat(result.type);
-                card.querySelector('a').setAttribute('href', result.html_url);
-            }
-            appDiv.appendChild(card);
-        });
-    }
+    searchTypeToggle.addEventListener('change', function (event) {
+        searchType = event.target.value;
+        console.log('Search type changed to:', searchType);
+    });
+    updateUI();
 });
 //# sourceMappingURL=main.js.map

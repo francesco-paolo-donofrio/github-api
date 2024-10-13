@@ -1,26 +1,22 @@
 const path = require('path');
 
 module.exports = {
-  
-  entry: [ 
-  'bootstrap/dist/css/bootstrap.min.css',
-  'bootstrap',
-  './src/main.ts', 
-],
+  entry: './src/main.ts', // Entry point del tuo codice TypeScript
+  output: {
+    filename: 'bundle.js', // Il file che verrà generato dopo la compilazione
+    path: path.resolve(__dirname, 'dist'),
+  },
+  resolve: {
+    extensions: ['.ts', '.js'], // Estensioni che Webpack processa
+  },
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.ts$/, // Processa i file .ts con TypeScript loader
         use: 'ts-loader',
         exclude: /node_modules/,
       },
     ],
   },
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
-  },
-  output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, './dist'),
-  },
+  mode: 'development', // Imposta la modalità (development o production)
 };
