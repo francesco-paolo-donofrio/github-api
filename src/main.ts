@@ -1,5 +1,6 @@
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './css/style.css';
 
 interface Repository {
     id: number;
@@ -17,78 +18,53 @@ interface User {
     type: string;
 }
 
-type SearchResult = Repository[] | User[];
-
 document.addEventListener('DOMContentLoaded', () => {
     const searchBar = document.getElementById('search') as HTMLInputElement;
     const searchBtn = document.getElementById('searchBtn') as HTMLButtonElement;
     const searchTypeToggle = document.getElementById('searchType') as HTMLSelectElement;
     const appDiv = document.getElementById('app') as HTMLDivElement;
 
-    let searchResults: SearchResult = [];
-    let searchType: 'repositories' | 'users' = 'repositories';
-
     async function fetchData(query: string) {
+        const searchType = searchTypeToggle.value; // Usa il valore selezionato dal dropdown
         console.log(`Fetching ${searchType} with query: ${query}`);
 
         try {
             const response = await axios.get(`https://api.github.com/search/${searchType}?q=${query}&per_page=10`);
-            console.log('API response:', response.data);
+            const searchResults = response.data.items || [];
 
-            // Assicurati di ottenere items dalla risposta
-            searchResults = response.data.items || [];
-            console.log('Search results:', searchResults);
+            // Chiaro il contenuto attuale delle card
+            appDiv.innerHTML = '';
+
+            // Crea e mostra le card per ogni risultato
+            searchResults.forEach((item: Repository | User) => {
+                let card : HTMLElement = document.createElement('div');
+
+                // Se stai cercando repository
+                if (searchType === 'repositories') {
+                    card = document.getElementById('repoCardTemplate')!.cloneNode(true) as HTMLElement;
+                    card.querySelector('.repo-name')!.textContent = (item as Repository).name;
+                    card.querySelector('.repo-description')!.textContent = (item as Repository).description || 'No description available.';
+                    card.querySelector('.repo-stars')!.textContent = `Stars: ${(item as Repository).stargazers_count}`;
+                    const link = card.querySelector('.repo-link') as HTMLAnchorElement;
+                    link.href = (item as Repository).html_url;
+
+                } else if (searchType === 'users') { // Se stai cercando utenti
+                    card = document.getElementById('repoCardTemplate')!.cloneNode(true) as HTMLElement;
+                    card.querySelector('.repo-name')!.textContent = (item as User).login;
+                    card.querySelector('.repo-description')!.textContent = 'User/Organization';
+                    card.querySelector('.repo-stars')!.textContent = '';
+                    const link = card.querySelector('.repo-link') as HTMLAnchorElement;
+                    link.href = (item as User).html_url;
+                }
+
+                // Mostra la card
+                card.classList.remove('d-block'); 
+                appDiv.appendChild(card);
+            });
+
         } catch (error) {
             console.error(`Error fetching ${searchType}:`, error);
-            searchResults = [];
         }
-
-        // Aggiorna l'UI dopo la fetch
-        updateUI();
-    }
-
-    function updateUI() {
-        console.log('Updating UI. Search results:', searchResults);
-        let htmlContent = '';
-
-        if (searchResults.length > 0) {
-            htmlContent = searchResults.map(item => 
-                searchType === 'repositories' 
-                    ? createRepoCard(item as Repository) 
-                    : createUserCard(item as User)
-            ).join('');
-        } else {
-            htmlContent = `<p>No ${searchType} found.</p>`;
-        }
-
-        appDiv.innerHTML = htmlContent;
-        console.log('Updated appDiv:', appDiv.innerHTML); // Verifica il contenuto di appDiv
-    }
-
-    function createRepoCard(repo: Repository): string {
-        return `
-            <div class="wrapper">
-                <h1>${repo.name}</h1>
-                <p>${repo.description || 'No description available.'}</p>
-                <p>Stars: ${repo.stargazers_count}</p>
-                <div class="button-wrapper">
-                    <a href="${repo.html_url}" target="_blank" class="btn outline">VIEW ON GITHUB</a>
-                </div>
-            </div>
-        `;
-    }
-
-    function createUserCard(user: User): string {
-        return `
-            <div class="wrapper">
-                <img src="${user.avatar_url}" alt="${user.login}" class="avatar-image">
-                <h1>${user.login}</h1>
-                <p>Type: ${user.type}</p>
-                <div class="button-wrapper">
-                    <a href="${user.html_url}" target="_blank" class="btn outline">VIEW ON GITHUB</a>
-                </div>
-            </div>
-        `;
     }
 
     searchBtn.addEventListener('click', () => {
@@ -100,12 +76,4 @@ document.addEventListener('DOMContentLoaded', () => {
             appDiv.innerHTML = "<p>Please enter a search term.</p>";
         }
     });
-
-    searchTypeToggle.addEventListener('change', (event) => {
-        searchType = (event.target as HTMLSelectElement).value as 'repositories' | 'users';
-        console.log('Search type changed to:', searchType);
-    });
-
-    // Inizializzazione
-    updateUI();
 });

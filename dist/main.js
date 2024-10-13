@@ -36,19 +36,19 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './css/style.css';
 document.addEventListener('DOMContentLoaded', function () {
     var searchBar = document.getElementById('search');
     var searchBtn = document.getElementById('searchBtn');
     var searchTypeToggle = document.getElementById('searchType');
     var appDiv = document.getElementById('app');
-    var searchResults = [];
-    var searchType = 'repositories';
     function fetchData(query) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_1;
+            var searchType, response, searchResults, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        searchType = searchTypeToggle.value;
                         console.log("Fetching ".concat(searchType, " with query: ").concat(query));
                         _a.label = 1;
                     case 1:
@@ -56,43 +56,38 @@ document.addEventListener('DOMContentLoaded', function () {
                         return [4, axios.get("https://api.github.com/search/".concat(searchType, "?q=").concat(query, "&per_page=10"))];
                     case 2:
                         response = _a.sent();
-                        console.log('API response:', response.data);
                         searchResults = response.data.items || [];
-                        console.log('Search results:', searchResults);
+                        appDiv.innerHTML = '';
+                        searchResults.forEach(function (item) {
+                            var card = document.createElement('div');
+                            if (searchType === 'repositories') {
+                                card = document.getElementById('repoCardTemplate').cloneNode(true);
+                                card.querySelector('.repo-name').textContent = item.name;
+                                card.querySelector('.repo-description').textContent = item.description || 'No description available.';
+                                card.querySelector('.repo-stars').textContent = "Stars: ".concat(item.stargazers_count);
+                                var link = card.querySelector('.repo-link');
+                                link.href = item.html_url;
+                            }
+                            else if (searchType === 'users') {
+                                card = document.getElementById('repoCardTemplate').cloneNode(true);
+                                card.querySelector('.repo-name').textContent = item.login;
+                                card.querySelector('.repo-description').textContent = 'User/Organization';
+                                card.querySelector('.repo-stars').textContent = '';
+                                var link = card.querySelector('.repo-link');
+                                link.href = item.html_url;
+                            }
+                            card.classList.remove('d-block');
+                            appDiv.appendChild(card);
+                        });
                         return [3, 4];
                     case 3:
                         error_1 = _a.sent();
                         console.error("Error fetching ".concat(searchType, ":"), error_1);
-                        searchResults = [];
                         return [3, 4];
-                    case 4:
-                        updateUI();
-                        return [2];
+                    case 4: return [2];
                 }
             });
         });
-    }
-    function updateUI() {
-        console.log('Updating UI. Search results:', searchResults);
-        var htmlContent = '';
-        if (searchResults.length > 0) {
-            htmlContent = searchResults.map(function (item) {
-                return searchType === 'repositories'
-                    ? createRepoCard(item)
-                    : createUserCard(item);
-            }).join('');
-        }
-        else {
-            htmlContent = "<p>No ".concat(searchType, " found.</p>");
-        }
-        appDiv.innerHTML = htmlContent;
-        console.log('Updated appDiv:', appDiv.innerHTML);
-    }
-    function createRepoCard(repo) {
-        return "\n            <div class=\"wrapper\">\n                <h1>".concat(repo.name, "</h1>\n                <p>").concat(repo.description || 'No description available.', "</p>\n                <p>Stars: ").concat(repo.stargazers_count, "</p>\n                <div class=\"button-wrapper\">\n                    <a href=\"").concat(repo.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n                </div>\n            </div>\n        ");
-    }
-    function createUserCard(user) {
-        return "\n            <div class=\"wrapper\">\n                <img src=\"".concat(user.avatar_url, "\" alt=\"").concat(user.login, "\" class=\"avatar-image\">\n                <h1>").concat(user.login, "</h1>\n                <p>Type: ").concat(user.type, "</p>\n                <div class=\"button-wrapper\">\n                    <a href=\"").concat(user.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n                </div>\n            </div>\n        ");
     }
     searchBtn.addEventListener('click', function () {
         var search = searchBar.value.trim().toLowerCase();
@@ -104,10 +99,5 @@ document.addEventListener('DOMContentLoaded', function () {
             appDiv.innerHTML = "<p>Please enter a search term.</p>";
         }
     });
-    searchTypeToggle.addEventListener('change', function (event) {
-        searchType = event.target.value;
-        console.log('Search type changed to:', searchType);
-    });
-    updateUI();
 });
 //# sourceMappingURL=main.js.map
