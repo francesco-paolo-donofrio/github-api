@@ -35,16 +35,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
+import 'bootstrap/dist/js/bootstrap.min.js';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@popperjs/core';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './css/style.css';
+import './index.html';
 document.addEventListener('DOMContentLoaded', function () {
     var searchBar = document.getElementById('search');
     var searchBtn = document.getElementById('searchBtn');
     var searchTypeToggle = document.getElementById('searchType');
     var appDiv = document.getElementById('app');
-    if (!appDiv) {
-        console.error("Element with id 'app' not found!");
+    var cardTemplate = document.getElementById('cardTemplate');
+    if (!appDiv || !cardTemplate) {
+        console.error("Required elements not found!");
         return;
     }
     var searchResults = [];
@@ -85,37 +90,42 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     function updateUI() {
-        console.log('Updating UI. Search results:', searchResults);
-        var htmlContent = '';
+        appDiv.innerHTML = '';
         if (isLoading) {
-            htmlContent = "<p>Loading...</p>";
+            appDiv.innerHTML = "<p>Loading...</p>";
+            return;
         }
-        else if (hasError) {
-            htmlContent = "<p>An error occurred while fetching ".concat(searchType, ".</p>");
+        if (hasError) {
+            appDiv.innerHTML = "<p>An error occurred while fetching ".concat(searchType, ".</p>");
+            return;
         }
-        else if (searchResults.length > 0) {
-            htmlContent = searchResults.map(function (item) {
-                return searchType === 'repositories'
-                    ? createRepoCard(item)
-                    : createUserCard(item);
-            }).join('');
+        if (searchResults.length === 0) {
+            appDiv.innerHTML = "<p>No ".concat(searchType, " found.</p>");
+            return;
         }
-        else {
-            htmlContent = "<p>No ".concat(searchType, " found.</p>");
-        }
-        console.log('Generated HTML:', htmlContent);
-        appDiv.innerHTML = htmlContent;
-        console.log('appDiv after update:', appDiv.outerHTML);
-    }
-    function createRepoCard(repo) {
-        return "\n            <div class=\"wrapper\">\n                <div class=\"banner-image\"></div>\n                <h1>".concat(repo.name, "</h1>\n                <p>").concat(repo.description || 'No description available.', "</p>\n                <p>Stars: ").concat(repo.stargazers_count, "</p>\n                <div class=\"button-wrapper\">\n                    <a href=\"").concat(repo.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n                </div>\n            </div>\n        ");
-    }
-    function createUserCard(user) {
-        return "\n            <div class=\"wrapper\">\n                <img src=\"".concat(user.avatar_url, "\" alt=\"").concat(user.login, "\" class=\"avatar-image\">\n                <h1>").concat(user.login, "</h1>\n                <p>Type: ").concat(user.type, "</p>\n                <div class=\"button-wrapper\">\n                    <a href=\"").concat(user.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n                </div>\n            </div>\n        ");
+        searchResults.forEach(function (item) {
+            console.log('Cloning card for item:', item);
+            var clonedCard = cardTemplate.cloneNode(true);
+            clonedCard.style.display = 'block';
+            if (searchType === 'repositories') {
+                var repo = item;
+                clonedCard.querySelector('.card-title').textContent = repo.name;
+                clonedCard.querySelector('.card-description').textContent = repo.description || 'No description available.';
+                clonedCard.querySelector('.card-stars').textContent = "Stars: ".concat(repo.stargazers_count);
+                clonedCard.querySelector('a').setAttribute('href', repo.html_url);
+            }
+            else {
+                var user = item;
+                clonedCard.querySelector('.card-title').textContent = user.login;
+                clonedCard.querySelector('.card-description').textContent = "Type: ".concat(user.type);
+                clonedCard.querySelector('a').setAttribute('href', user.html_url);
+                clonedCard.querySelector('.banner-image').style.backgroundImage = "url(".concat(user.avatar_url, ")");
+            }
+            appDiv.appendChild(clonedCard);
+        });
     }
     searchBtn.addEventListener('click', function () {
         var search = searchBar.value.trim().toLowerCase();
-        console.log('Search button clicked. Search term:', search);
         if (search) {
             fetchData(search);
         }
@@ -125,7 +135,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     searchTypeToggle.addEventListener('change', function (event) {
         searchType = event.target.value;
-        console.log('Search type changed to:', searchType);
     });
     updateUI();
 });
