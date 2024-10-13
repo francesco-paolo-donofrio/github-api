@@ -4,23 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/vite@latest/dist/vite.js"></script>
-    <script type="module" src="dist/main.js"></script>
-    <script src="dist/bundle.js"></script>
-    <title>Github-api</title>
+    <title>Github Repository Search</title>
 </head>
 <body>
     <div id="app">
         <div id="searchBar">
-            <input type="text" id="search" placeholder="Search">
-            <button id="searchBtn" type="submit">Search</button>
+            <input type="text" id="search" placeholder="Search repositories">
+            <button id="searchBtn" type="button">Search</button>
         </div>
-        <div id="template">
-            <div id="repo-name">
-
-            </div>
-        </div>
+        <div id="repo-name"></div>
     </div>
+    <script src="dist/bundle.js"></script>
 </body>
 </html>
