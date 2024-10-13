@@ -1,4 +1,7 @@
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@popperjs/core';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 interface Repository {
     id: number;
