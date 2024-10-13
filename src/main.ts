@@ -74,6 +74,14 @@ searchBtn.addEventListener('click', () => {
 
 updateUI();
 
+const dropdownButton = document.getElementById('dropdown');
+
+if (dropdownButton) {
+  dropdownButton.addEventListener('click', () => {
+    console.log('Dropdown button clicked!');
+  });
+}
+
 
 
 
