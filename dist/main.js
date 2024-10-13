@@ -13,14 +13,17 @@ axios.get('https://api.github.com/repositories')
     var searchBar = document.getElementById('search');
     var search = searchBar.value.toLowerCase();
     var repoNameDiv = document.getElementById('repo-name');
-    if (search) {
+    if (search && repoNameDiv) {
         var filteredRepos = repositories.filter(function (repo) {
             return repo.name.toLowerCase().includes(search);
         });
         console.log("Filtered repositories:", filteredRepos);
-        var repoList = filteredRepos.map(function (repo) { return "".concat(repo.name); }).join('');
-        if (repoNameDiv) {
-            repoNameDiv.innerHTML = "".concat(repoList);
+        if (filteredRepos.length > 0) {
+            var repoList = filteredRepos.map(function (repo) { return "<li>".concat(repo.name, "</li>"); }).join('');
+            repoNameDiv.innerHTML = "<ul>".concat(repoList, "</ul>");
+        }
+        else {
+            repoNameDiv.innerHTML = "<p>No repositories found.</p>";
         }
     }
     else {

@@ -17,21 +17,22 @@ axios.get('https://api.github.com/repositories')
 document.getElementById('searchBtn')?.addEventListener('click', () => {
     const searchBar = document.getElementById('search') as HTMLInputElement;
     const search: string = searchBar.value.toLowerCase();
-    const repoNameDiv: any = document.getElementById('repo-name');
+    const repoNameDiv = document.getElementById('repo-name');
 
-    if (search) {
+    if (search && repoNameDiv) {
         // Filter the repositories by name
         const filteredRepos = repositories.filter(repo => 
             repo.name.toLowerCase().includes(search)
         );
+
         console.log("Filtered repositories:", filteredRepos);
 
-        // Create HTML content from filtered repositories
-        const repoList = filteredRepos.map(repo => `${repo.name}`).join('');
-
-        // Display the filtered repositories in the div
-        if (repoNameDiv) {
-            repoNameDiv.innerHTML = `${repoList}`;
+        // Generate HTML for filtered repositories
+        if (filteredRepos.length > 0) {
+            const repoList = filteredRepos.map(repo => `<li>${repo.name}</li>`).join('');
+            repoNameDiv.innerHTML = `<ul>${repoList}</ul>`;
+        } else {
+            repoNameDiv.innerHTML = "<p>No repositories found.</p>";
         }
     } else {
         console.log("Please enter a search term.");
