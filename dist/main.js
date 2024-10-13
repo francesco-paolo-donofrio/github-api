@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,108 +35,72 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-import axios from 'axios';
-import 'bootstrap';
-import 'bootstrap/dist/js/bootstrap.min.js';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@popperjs/core';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './css/style.css';
-import './index.html';
 document.addEventListener('DOMContentLoaded', function () {
     var searchBar = document.getElementById('search');
     var searchBtn = document.getElementById('searchBtn');
-    var searchTypeToggle = document.getElementById('searchType');
+    var searchTypeDropdown = document.getElementById('searchType');
     var appDiv = document.getElementById('app');
-    var cardTemplate = document.getElementById('cardTemplate');
-    if (!appDiv || !cardTemplate) {
-        console.error("Required elements not found!");
-        return;
-    }
-    var searchResults = [];
-    var isLoading = false;
-    var hasError = false;
-    var searchType = 'repositories';
-    function fetchData(query) {
-        return __awaiter(this, void 0, void 0, function () {
-            var response, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        console.log("Fetching ".concat(searchType, " with query: ").concat(query));
-                        isLoading = true;
-                        updateUI();
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4, axios.get("https://api.github.com/search/".concat(searchType, "?q=").concat(query, "&per_page=10"))];
-                    case 2:
-                        response = _a.sent();
-                        console.log('API response:', response.data);
-                        searchResults = response.data.items;
-                        hasError = false;
-                        return [3, 4];
-                    case 3:
-                        error_1 = _a.sent();
-                        console.error("Error fetching ".concat(searchType, ":"), error_1);
-                        hasError = true;
-                        searchResults = [];
-                        return [3, 4];
-                    case 4:
-                        isLoading = false;
-                        updateUI();
-                        return [2];
-                }
-            });
-        });
-    }
-    function updateUI() {
-        appDiv.innerHTML = '';
-        if (isLoading) {
-            appDiv.innerHTML = "<p>Loading...</p>";
-            return;
-        }
-        if (hasError) {
-            appDiv.innerHTML = "<p>An error occurred while fetching ".concat(searchType, ".</p>");
-            return;
-        }
-        if (searchResults.length === 0) {
-            appDiv.innerHTML = "<p>No ".concat(searchType, " found.</p>");
-            return;
-        }
-        searchResults.forEach(function (item) {
-            console.log('Cloning card for item:', item);
-            var clonedCard = cardTemplate.cloneNode(true);
-            clonedCard.style.display = 'block';
-            if (searchType === 'repositories') {
-                var repo = item;
-                clonedCard.querySelector('.card-title').textContent = repo.name;
-                clonedCard.querySelector('.card-description').textContent = repo.description || 'No description available.';
-                clonedCard.querySelector('.card-stars').textContent = "Stars: ".concat(repo.stargazers_count);
-                clonedCard.querySelector('a').setAttribute('href', repo.html_url);
-            }
-            else {
-                var user = item;
-                clonedCard.querySelector('.card-title').textContent = user.login;
-                clonedCard.querySelector('.card-description').textContent = "Type: ".concat(user.type);
-                clonedCard.querySelector('a').setAttribute('href', user.html_url);
-                clonedCard.querySelector('.banner-image').style.backgroundImage = "url(".concat(user.avatar_url, ")");
-            }
-            appDiv.appendChild(clonedCard);
-        });
-    }
+    var cardTemplate = "\n        <div class=\"wrapper\">\n            <h1 class=\"card-title\"></h1>\n            <p class=\"card-description\"></p>\n            <a href=\"#\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n        </div>\n    ";
     searchBtn.addEventListener('click', function () {
-        var search = searchBar.value.trim().toLowerCase();
-        if (search) {
-            fetchData(search);
+        var searchQuery = searchBar.value.trim();
+        var searchType = searchTypeDropdown.value;
+        if (searchQuery) {
+            fetchData(searchQuery, searchType);
         }
         else {
             appDiv.innerHTML = "<p>Please enter a search term.</p>";
         }
     });
-    searchTypeToggle.addEventListener('change', function (event) {
-        searchType = event.target.value;
-    });
-    updateUI();
+    function fetchData(query, type) {
+        return __awaiter(this, void 0, void 0, function () {
+            var apiUrl, response, data, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        appDiv.innerHTML = "<p>Loading...</p>";
+                        apiUrl = type === 'repositories'
+                            ? "https://api.github.com/search/repositories?q=".concat(query, "&per_page=10")
+                            : "https://api.github.com/search/users?q=".concat(query, "&per_page=10");
+                        return [4, fetch(apiUrl)];
+                    case 1:
+                        response = _a.sent();
+                        return [4, response.json()];
+                    case 2:
+                        data = _a.sent();
+                        renderResults(data.items, type);
+                        return [3, 4];
+                    case 3:
+                        error_1 = _a.sent();
+                        console.error('Error fetching data:', error_1);
+                        appDiv.innerHTML = "<p>Error fetching data. Please try again.</p>";
+                        return [3, 4];
+                    case 4: return [2];
+                }
+            });
+        });
+    }
+    function renderResults(results, type) {
+        if (results.length === 0) {
+            appDiv.innerHTML = "<p>No ".concat(type, " found.</p>");
+            return;
+        }
+        appDiv.innerHTML = '';
+        results.forEach(function (result) {
+            var card = document.createElement('div');
+            card.innerHTML = cardTemplate;
+            if (type === 'repositories') {
+                card.querySelector('.card-title').textContent = result.name;
+                card.querySelector('.card-description').textContent = result.description || 'No description available.';
+                card.querySelector('a').setAttribute('href', result.html_url);
+            }
+            else {
+                card.querySelector('.card-title').textContent = result.login;
+                card.querySelector('.card-description').textContent = "Type: ".concat(result.type);
+                card.querySelector('a').setAttribute('href', result.html_url);
+            }
+            appDiv.appendChild(card);
+        });
+    }
 });
 //# sourceMappingURL=main.js.map
