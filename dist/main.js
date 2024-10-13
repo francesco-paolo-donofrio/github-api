@@ -40,7 +40,7 @@ var isLoading = false;
 var hasError = false;
 var searchBar = document.getElementById('search');
 var searchBtn = document.getElementById('searchBtn');
-var repoNameDiv = document.getElementById('repo-name');
+var appDiv = document.getElementById('app');
 function fetchRepositories(query) {
     return __awaiter(this, void 0, void 0, function () {
         var response, error_1;
@@ -52,7 +52,7 @@ function fetchRepositories(query) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4, axios.get("https://api.github.com/search/repositories?q=".concat(query))];
+                    return [4, axios.get("https://api.github.com/search/repositories?q=".concat(query, "&per_page=10"))];
                 case 2:
                     response = _a.sent();
                     repositories = response.data.items;
@@ -74,18 +74,20 @@ function fetchRepositories(query) {
 }
 function updateUI() {
     if (isLoading) {
-        repoNameDiv.innerHTML = "<p>Loading...</p>";
+        appDiv.innerHTML = "<p>Loading...</p>";
     }
     else if (hasError) {
-        repoNameDiv.innerHTML = "<p>An error occurred while fetching repositories.</p>";
+        appDiv.innerHTML = "<p>An error occurred while fetching repositories.</p>";
     }
     else if (repositories.length > 0) {
-        var repoList = repositories.map(function (repo) { return "<li>".concat(repo.name, "</li>"); }).join('');
-        repoNameDiv.innerHTML = "<ul>".concat(repoList, "</ul>");
+        appDiv.innerHTML = repositories.map(function (repo) { return createRepoCard(repo); }).join('');
     }
     else {
-        repoNameDiv.innerHTML = "<p>No repositories found.</p>";
+        appDiv.innerHTML = "<p>No repositories found.</p>";
     }
+}
+function createRepoCard(repo) {
+    return "\n        <div class=\"wrapper\">\n            <div class=\"banner-image\"></div>\n            <h1>".concat(repo.name, "</h1>\n            <p>").concat(repo.description || 'No description available.', "</p>\n            <p>Stars: ").concat(repo.stargazers_count, "</p>\n            <div class=\"button-wrapper\">\n                <a href=\"").concat(repo.html_url, "\" target=\"_blank\" class=\"btn outline\">VIEW ON GITHUB</a>\n            </div>\n        </div>\n    ");
 }
 searchBtn.addEventListener('click', function () {
     var search = searchBar.value.trim().toLowerCase();
@@ -93,7 +95,7 @@ searchBtn.addEventListener('click', function () {
         fetchRepositories(search);
     }
     else {
-        repoNameDiv.innerHTML = "<p>Please enter a search term.</p>";
+        appDiv.innerHTML = "<p>Please enter a search term.</p>";
     }
 });
 updateUI();
