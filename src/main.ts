@@ -24,59 +24,65 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchTypeToggle = document.getElementById('searchType') as HTMLSelectElement;
     const appDiv = document.getElementById('app') as HTMLDivElement;
 
-    async function fetchData(query: string) {
+    // Funzione per rendere visibile il contenuto del DOM e fare la chiamata API
+    searchBtn.addEventListener('click', async () => {
+        const search = searchBar.value.trim().toLowerCase();
         const searchType = searchTypeToggle.value;
-        console.log(`Fetching ${searchType} with query: ${query}`);
 
-        // Mostra il loader
-        appDiv.innerHTML = '<p>Loading...</p>';
+        console.log('Search button clicked. Search term:', search);
 
-        try {
-            const response = await axios.get(`https://api.github.com/search/${searchType}?q=${query}&per_page=20`);
-            const searchResults = response.data.items || [];
+        // Controlla se la ricerca è abbastanza lunga
+        if (search.length >= 3) {
+            // Mostra il loader e cancella i risultati precedenti
+            appDiv.innerHTML = '<p>Loading...</p>';
 
-            // Chiaro il contenuto attuale delle card
-            appDiv.innerHTML = '';
+            try {
+                // Esegui la chiamata API
+                const response = await axios.get(`https://api.github.com/search/${searchType}?q=${search}&per_page=20`);
+                const searchResults = response.data.items || [];
+                console.log('Search results:', searchResults);
 
-            if (searchResults.length === 0) {
-                appDiv.innerHTML = '<p>No results found.</p>';
-                return;
-            }
+                // Svuota il contenuto del div prima di mostrare i risultati
+                appDiv.innerHTML = '';
 
-            searchResults.forEach((item: Repository | User) => {
-                let card: HTMLElement = document.getElementById('repoCardTemplate')!.cloneNode(true) as HTMLElement;
-
-                if (searchType === 'repositories') {
-                    card.querySelector('.repo-name')!.textContent = (item as Repository).name;
-                    card.querySelector('.repo-description')!.textContent = (item as Repository).description || 'No description available.';
-                    card.querySelector('.repo-stars')!.textContent = `Stars: ${(item as Repository).stargazers_count}`;
-                    const link = card.querySelector('.repo-link') as HTMLAnchorElement;
-                    link.href = (item as Repository).html_url;
-                } else if (searchType === 'users') {
-                    card.querySelector('.repo-name')!.textContent = (item as User).login;
-                    card.querySelector('.repo-description')!.textContent = 'User/Organization';
-                    card.querySelector('.repo-stars')!.textContent = '';
-                    const link = card.querySelector('.repo-link') as HTMLAnchorElement;
-                    link.href = (item as User).html_url;
+                // Se non ci sono risultati
+                if (searchResults.length === 0) {
+                    appDiv.innerHTML = '<p>No results found.</p>';
+                    return;
                 }
 
-                card.classList.remove('d-none'); 
-                appDiv.appendChild(card);
-            });
+                // Cicla i risultati della ricerca e mostra le card
+                searchResults.forEach((item: Repository | User, index : number) => {
+                    // Clona il template della card
+                    let card: HTMLElement = document.getElementById('repoCardTemplate')!.cloneNode(true) as HTMLElement;
+                    console.log(`Rendering card #${index}:`, item);
 
-        } catch (error) {
-            console.error(`Error fetching ${searchType}:`, error);
-            appDiv.innerHTML = '<p>An error occurred. Please try again.</p>';
-        }
-    }
+                    // Aggiungi le informazioni corrette alla card
+                    if (searchType === 'repositories') {
+                        card.querySelector('.repo-name')!.textContent = (item as Repository).name;
+                        card.querySelector('.repo-description')!.textContent = (item as Repository).description || 'No description available.';
+                        card.querySelector('.repo-stars')!.textContent = `Stars: ${(item as Repository).stargazers_count}`;
+                        const link = card.querySelector('.repo-link') as HTMLAnchorElement;
+                        link.href = (item as Repository).html_url;
+                    } else if (searchType === 'users') {
+                        card.querySelector('.repo-name')!.textContent = (item as User).login;
+                        card.querySelector('.repo-description')!.textContent = 'User/Organization';
+                        const link = card.querySelector('.repo-link') as HTMLAnchorElement;
+                        link.href = (item as User).html_url;
+                    }
 
-    searchBtn.addEventListener('click', () => {
-        const search = searchBar.value.trim().toLowerCase();
-        console.log('Search button clicked. Search term:', search);
-        
-        if (search.length >= 3) {
-            fetchData(search);
+                    // Rimuovi la classe nascosta dal clone e aggiungi la card all'elemento "appDiv"
+                    card.classList.remove('d-none');
+                    appDiv.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error(`Error fetching ${searchType}:`, error);
+                appDiv.innerHTML = '<p>An error occurred. Please try again.</p>';
+            }
+
         } else {
+            // Se la ricerca non è lunga abbastanza, mostra un messaggio di avviso
             appDiv.innerHTML = "<p>Please enter at least 3 characters.</p>";
         }
     });

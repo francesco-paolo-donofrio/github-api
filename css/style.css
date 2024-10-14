@@ -30,6 +30,10 @@
     gap: 20px;
 }
 
+#repoCardTemplate {
+  display: none;
+}
+
 
 /* Card repositories */
 

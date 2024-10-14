@@ -42,66 +42,61 @@ document.addEventListener('DOMContentLoaded', function () {
     var searchBtn = document.getElementById('searchBtn');
     var searchTypeToggle = document.getElementById('searchType');
     var appDiv = document.getElementById('app');
-    function fetchData(query) {
-        return __awaiter(this, void 0, void 0, function () {
-            var searchType, response, searchResults, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        searchType = searchTypeToggle.value;
-                        console.log("Fetching ".concat(searchType, " with query: ").concat(query));
-                        appDiv.innerHTML = '<p>Loading...</p>';
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4, axios.get("https://api.github.com/search/".concat(searchType, "?q=").concat(query, "&per_page=20"))];
-                    case 2:
-                        response = _a.sent();
-                        searchResults = response.data.items || [];
-                        appDiv.innerHTML = '';
-                        if (searchResults.length === 0) {
-                            appDiv.innerHTML = '<p>No results found.</p>';
-                            return [2];
+    searchBtn.addEventListener('click', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var search, searchType, response, searchResults, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    search = searchBar.value.trim().toLowerCase();
+                    searchType = searchTypeToggle.value;
+                    console.log('Search button clicked. Search term:', search);
+                    if (!(search.length >= 3)) return [3, 5];
+                    appDiv.innerHTML = '<p>Loading...</p>';
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4, axios.get("https://api.github.com/search/".concat(searchType, "?q=").concat(search, "&per_page=20"))];
+                case 2:
+                    response = _a.sent();
+                    searchResults = response.data.items || [];
+                    console.log('Search results:', searchResults);
+                    appDiv.innerHTML = '';
+                    if (searchResults.length === 0) {
+                        appDiv.innerHTML = '<p>No results found.</p>';
+                        return [2];
+                    }
+                    searchResults.forEach(function (item, index) {
+                        var card = document.getElementById('repoCardTemplate').cloneNode(true);
+                        console.log("Rendering card #".concat(index, ":"), item);
+                        if (searchType === 'repositories') {
+                            card.querySelector('.repo-name').textContent = item.name;
+                            card.querySelector('.repo-description').textContent = item.description || 'No description available.';
+                            card.querySelector('.repo-stars').textContent = "Stars: ".concat(item.stargazers_count);
+                            var link = card.querySelector('.repo-link');
+                            link.href = item.html_url;
                         }
-                        searchResults.forEach(function (item) {
-                            var card = document.getElementById('repoCardTemplate').cloneNode(true);
-                            if (searchType === 'repositories') {
-                                card.querySelector('.repo-name').textContent = item.name;
-                                card.querySelector('.repo-description').textContent = item.description || 'No description available.';
-                                card.querySelector('.repo-stars').textContent = "Stars: ".concat(item.stargazers_count);
-                                var link = card.querySelector('.repo-link');
-                                link.href = item.html_url;
-                            }
-                            else if (searchType === 'users') {
-                                card.querySelector('.repo-name').textContent = item.login;
-                                card.querySelector('.repo-description').textContent = 'User/Organization';
-                                card.querySelector('.repo-stars').textContent = '';
-                                var link = card.querySelector('.repo-link');
-                                link.href = item.html_url;
-                            }
-                            card.classList.remove('d-none');
-                            appDiv.appendChild(card);
-                        });
-                        return [3, 4];
-                    case 3:
-                        error_1 = _a.sent();
-                        console.error("Error fetching ".concat(searchType, ":"), error_1);
-                        appDiv.innerHTML = '<p>An error occurred. Please try again.</p>';
-                        return [3, 4];
-                    case 4: return [2];
-                }
-            });
+                        else if (searchType === 'users') {
+                            card.querySelector('.repo-name').textContent = item.login;
+                            card.querySelector('.repo-description').textContent = 'User/Organization';
+                            var link = card.querySelector('.repo-link');
+                            link.href = item.html_url;
+                        }
+                        card.classList.remove('d-none');
+                        appDiv.appendChild(card);
+                    });
+                    return [3, 4];
+                case 3:
+                    error_1 = _a.sent();
+                    console.error("Error fetching ".concat(searchType, ":"), error_1);
+                    appDiv.innerHTML = '<p>An error occurred. Please try again.</p>';
+                    return [3, 4];
+                case 4: return [3, 6];
+                case 5:
+                    appDiv.innerHTML = "<p>Please enter at least 3 characters.</p>";
+                    _a.label = 6;
+                case 6: return [2];
+            }
         });
-    }
-    searchBtn.addEventListener('click', function () {
-        var search = searchBar.value.trim().toLowerCase();
-        console.log('Search button clicked. Search term:', search);
-        if (search.length >= 3) {
-            fetchData(search);
-        }
-        else {
-            appDiv.innerHTML = "<p>Please enter at least 3 characters.</p>";
-        }
-    });
+    }); });
 });
 //# sourceMappingURL=main.js.map
